@@ -42,14 +42,14 @@ if __name__ == "__main__":
 
     city_names = ['Morkomasto', 'Morathrad', 'Eregailin', 'Corathrad', 'Eregarta',
                   'Numensari', 'Rhunkadi', 'Londathrad', 'Baernlad', 'Forthyr']
-    city_locations = [] 
-    routes = []
+    city_locations = get_randomly_spread_cities(size, len(city_names))
+    routes = get_routes(city_names)
 
     ''' Setup cities and routes in here'''
 
     city_locations_dict = {name: location for name, location in zip(city_names, city_locations)}
     random.shuffle(routes)
-    routes = routes[:10] 
+    routes = routes[:10]
 
     while True:
         for event in pygame.event.get():
@@ -60,7 +60,11 @@ if __name__ == "__main__":
         screen.blit(pygame_surface, (0, 0))
 
         ''' draw cities '''
+        for i in range(len(city_names)):
+            pygame.draw.circle(pygame_surface, (0,0,0), city_locations[i], 5)
 
         ''' draw first 10 routes '''
+        for i in range(len(routes)):
+            pygame.draw.line(pygame_surface, (0,0,0), city_locations_dict[routes[i][0]], city_locations_dict[routes[i][1]])
 
         pygame.display.flip()

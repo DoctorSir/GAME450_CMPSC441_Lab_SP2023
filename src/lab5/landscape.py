@@ -4,7 +4,20 @@ import numpy as np
 
 def get_elevation(size):
     xpix, ypix = size
-    elevation = np.array([])
+    noise1 = PerlinNoise(octaves=1)
+    noise2 = PerlinNoise(octaves=3)
+    noise3 = PerlinNoise(octaves=9)
+    elevation = []
+    for i in range(xpix):
+        row = []
+        for j in range(ypix):
+            noise_val = noise1([i/xpix, j/ypix])
+            noise_val += 0.5*noise2([i/xpix, j/ypix])
+            noise_val += 0.25*noise3([i/xpix, j/ypix])
+
+            row.append(noise_val)
+        elevation.append(row)
+    elevation = np.array(elevation)
     '''Play around with perlin noise to get a better looking landscape (This is required for the lab)'''
 
     return elevation
