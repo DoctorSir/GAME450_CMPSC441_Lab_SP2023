@@ -41,8 +41,6 @@ def get_routes(city_names):
 
     return combos
 
-    pass
-
 
 # TODO: Fix variable names
 if __name__ == '__main__':

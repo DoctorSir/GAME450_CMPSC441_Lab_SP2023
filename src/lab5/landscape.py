@@ -4,15 +4,15 @@ import numpy as np
 
 def get_elevation(size):
     xpix, ypix = size
-    noise1 = PerlinNoise(octaves=1)
-    noise2 = PerlinNoise(octaves=3)
-    noise3 = PerlinNoise(octaves=9)
+    noise1 = PerlinNoise(octaves=3, seed=19)
+    noise2 = PerlinNoise(octaves=6, seed=24)
+    noise3 = PerlinNoise(octaves=12, seed=36)
     elevation = []
     for i in range(xpix):
         row = []
         for j in range(ypix):
             noise_val = noise1([i/xpix, j/ypix])
-            noise_val += 0.5*noise2([i/xpix, j/ypix])
+            noise_val += 0.66*noise2([i/xpix, j/ypix])
             noise_val += 0.25*noise3([i/xpix, j/ypix])
 
             row.append(noise_val)

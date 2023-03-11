@@ -32,7 +32,7 @@ from lab2.cities_n_routes import get_randomly_spread_cities, get_routes
 
 if __name__ == "__main__":
     pygame.init()
-    size = width, height = 640, 480
+    size = width, height = 100, 100
     black = 1, 1, 1
 
     screen = pygame.display.set_mode(size)

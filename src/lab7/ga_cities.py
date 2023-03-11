@@ -19,17 +19,69 @@ from pathlib import Path
 
 sys.path.append(str((Path(__file__) / ".." / ".." / "..").resolve().absolute()))
 
-from src.lab5.landscape import elevation_to_rgba
+from src.lab5.landscape import elevation_to_rgba, get_elevation
+from math import sqrt
 
 
 def game_fitness(cities, idx, elevation, size):
-    fitness = 0.0001  # Do not return a fitness of 0, it will mess up the algorithm.
+    fitness = 1  # Do not return a fitness of 0, it will mess up the algorithm.
     """
     Create your fitness function here to fulfill the following criteria:
     1. The cities should not be under water
     2. The cities should have a realistic distribution across the landscape
     3. The cities may also not be on top of mountains or on top of each other
     """
+    coords = solution_to_cities(cities, size)
+
+    distances = []
+    num = 1
+    for i in range(len(coords)):
+        x1, y1 = coords[i]
+
+        if elevation[x1][y1] < 0.5 or elevation[x1][y1] > 0.7:
+            num += 1
+
+        for j in range(i+1, len(coords)):
+            x2, y2 = coords[j]
+            distance = sqrt(pow((x2 - x1), 2) + pow((y2 - y1), 2))
+            distances.append(distance)
+
+    mean_distance = sum(distances) / len(distances)
+    variance = sum(pow((d - mean_distance), 2) for d in distances) / len(distances)
+    fitness *= 1 / (variance * num)
+
+    # Compute distances
+    distances = []
+    violations = 1
+    for i in range(len(coords)):
+        x1, y1 = coords[i]
+
+        if elevation[x1][y1] < 0.5 or elevation[x1][y1] > 0.7:
+            violations += 1
+
+        edge_dist = min(x1, y1, 100 - x1, 100 - y1)
+        distances.append(edge_dist)
+
+        for j in range(i+1, len(coords)):
+            x2, y2 = coords[j]
+            distance = sqrt((x2 - x1)**2 + (y2 - y1)**2)
+            distances.append(distance)
+    
+    # Compute fitness for elevation
+    elevation_fitness = 1 / violations
+
+    # Compute fitness for evenness
+    mean_distance = sum(distances) / len(distances)
+    variance = sum((d - mean_distance)**2 for d in distances) / len(distances)
+    evenness_fitness = 1 / variance
+    
+    # Compute fitness for maximum distance
+    max_distance = max(distances)
+    penalty = sum(1 / (d + 2e-6) for d in distances if d < max_distance)
+    max_distance_fitness = (max_distance - penalty) / max_distance
+    
+    # Combine fitness values
+    fitness = (evenness_fitness + max_distance_fitness + elevation_fitness) / 3
     return fitness
 
 
@@ -113,8 +165,7 @@ if __name__ == "__main__":
 
     size = 100, 100
     n_cities = 10
-    elevation = []
-    """ initialize elevation here from your previous code"""
+    elevation = get_elevation(size)
     # normalize landscape
     elevation = np.array(elevation)
     elevation = (elevation - elevation.min()) / (elevation.max() - elevation.min())
