@@ -25,10 +25,10 @@ class CombatPlayer(Player):
 
         :param percept: Tuple of (environment state, opponent's last move)
         """
-        env_state = percept[0]
-        last_weapon = percept[1]
-        # ** Previous round update **
         if percept is not None:
+            env_state = percept[0]
+            last_weapon = percept[1]
+            # ** Previous round update **
             self.opponent_choices.append(last_weapon)
             self.current_env_state = env_state
 
