@@ -34,6 +34,7 @@ class CombatPlayer(Player):
 
         # ** Current round update **
         self._action = self.weapon_selecting_strategy()
+        self.weapon = self._action
         self.my_choices.append(self.action)
 
     def damage(self):

@@ -19,9 +19,9 @@ class PyGameComputerCombatPlayer(CombatPlayer):
         super().__init__(name)
 
     def weapon_selecting_strategy(self):
-        if 30 < self.health < 50:
+        if 30 < self.health <= 50:
             self.weapon = 2
-        elif self.health < 30:
+        elif self.health <= 30:
             self.weapon = 1
         else:
             self.weapon = 0
