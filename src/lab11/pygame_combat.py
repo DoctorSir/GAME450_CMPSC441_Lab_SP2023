@@ -45,11 +45,16 @@ def run_turn(currentGame, player, opponent):
     for current_player, state in zip(players, states):
         current_player.selectAction(state)
 
+    playHealth = player.health
+    oppHealth = opponent.health
+
     currentGame.newRound()
     currentGame.takeTurn(player, opponent)
     print("%s's health = %d" % (player.name, player.health))
     print("%s's health = %d" % (opponent.name, opponent.health))
-    return currentGame.checkWin(player, opponent)
+    if (oppHealth - opponent.health) == 0 and (playHealth - player.health) == 0:
+        return -100
+    return (oppHealth - opponent.health) - ((playHealth - player.health) / 4) + (currentGame.checkWin(player, opponent) * 100)
 
 
 def run_pygame_combat(combat_surface, screen, player_sprite):

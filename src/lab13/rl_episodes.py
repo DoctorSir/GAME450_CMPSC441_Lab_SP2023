@@ -42,7 +42,7 @@ class PyGamePolicyCombatPlayer(CombatPlayer):
         self.policy = policy
 
     def weapon_selecting_strategy(self):
-        self.weapon = self.policy[self.current_env_state]
+        self.weapon = self.policy[(self.health, self.current_env_state)]
         return self.weapon
 
 
@@ -74,7 +74,35 @@ def run_episodes(n_episodes):
         Return the action values as a dictionary of dictionaries where the keys are states and 
             the values are dictionaries of actions and their values.
     '''
-
+    # initialize a dictionary to hold the returns for each state-action pair
+    state_action_returns = {}
+    player = PyGameRandomCombatPlayer("Robo Legolas")
+    opponent = PyGameComputerCombatPlayer("Computer")
+    
+    # loop over the specified number of episodes
+    for episode in range(n_episodes):
+        # get the history of state, action, and reward tuples for this episode
+        history = run_random_episode(player, opponent)
+        
+        # get the returns for each state-action pair in this episode
+        history_returns = get_history_returns(history)
+        
+        # loop over each state-action pair and update its return
+        for state, actions in history_returns.items():
+            if state not in state_action_returns:
+                state_action_returns[state] = {}
+            for action, return_value in actions.items():
+                if action not in state_action_returns[state]:
+                    state_action_returns[state][action] = []
+                state_action_returns[state][action].append(return_value)
+    
+    # calculate the average return for each state-action pair
+    action_values = {}
+    for state, actions in state_action_returns.items():
+        action_values[state] = {}
+        for action, returns in actions.items():
+            action_values[state][action] = sum(returns) / len(returns)
+    
     return action_values
 
 

@@ -24,8 +24,8 @@ def run_episode(player1, player2):
 
     # Main Game Loop
     while not currentGame.gameOver:
-        reward = run_turn(currentGame, player1, player2)
         state = (player1.health, player2.health)
+        reward = run_turn(currentGame, player1, player2)
         action = player1.weapon
 
         values.append((state, action, reward))
