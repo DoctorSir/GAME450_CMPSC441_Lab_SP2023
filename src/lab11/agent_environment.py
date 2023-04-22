@@ -1,10 +1,11 @@
 import sys
 import pygame
 import random
+import numpy as np
 from sprite import Sprite
 from pygame_combat import run_pygame_combat
 from pygame_human_player import PyGameHumanPlayer
-from landscape import get_landscape, get_combat_bg
+from landscape import get_landscape, get_combat_bg, elevation_to_rgba, get_elevation
 from pygame_ai_player import PyGameAIPlayer
 
 from pathlib import Path
@@ -12,14 +13,15 @@ from pathlib import Path
 sys.path.append(str((Path(__file__) / ".." / "..").resolve().absolute()))
 
 from lab2.cities_n_routes import get_randomly_spread_cities, get_routes
+from lab7.ga_cities import game_fitness, setup_GA
 
 
 pygame.font.init()
 game_font = pygame.font.SysFont("Comic Sans MS", 15)
 
 
-def get_landscape_surface(size):
-    landscape = get_landscape(size)
+def get_landscape_surface(elevation):
+    landscape = elevation_to_rgba(elevation)
     print("Created a landscape of size", landscape.shape)
     pygame_surface = pygame.surfarray.make_surface(landscape[:, :, :3])
     return pygame_surface
@@ -44,6 +46,24 @@ def displayCityNames(city_locations, city_names):
         text_surface = game_font.render(str(i) + " " + name, True, (0, 0, 150))
         screen.blit(text_surface, city_locations[i])
 
+def convert_to_coordinates(values, grid_size):
+    """
+    Converts a list of int32 values into tuples of coordinate pairs based on a passed in grid size.
+    
+    Args:
+        values (list[int]): List of int32 values to convert.
+        grid_size (tuple[int, int]): Tuple of width and height for the grid used to create the coordinate pairs.
+    
+    Returns:
+        list[tuple[int, int]]: List of coordinate pairs in the form of tuples.
+    """
+    width, height = grid_size
+    coordinates = []
+    for value in values:
+        x = value % width
+        y = value // width
+        coordinates.append((x, y))
+    return coordinates
 
 class State:
     def __init__(
@@ -73,8 +93,14 @@ if __name__ == "__main__":
 
     screen = setup_window(width, height, "Game World Gen Practice")
 
-    landscape_surface = get_landscape_surface(size)
+    elevation = get_elevation(size)
+    landscape_surface = get_landscape_surface(elevation)
+    # normalize landscape
+    elevation = np.array(elevation)
+    elevation = (elevation - elevation.min()) / (elevation.max() - elevation.min())
+
     combat_surface = get_combat_surface(size)
+
     city_names = [
         "Morkomasto",
         "Morathrad",
@@ -88,7 +114,17 @@ if __name__ == "__main__":
         "Forthyr",
     ]
 
-    cities = get_randomly_spread_cities(size, len(city_names))
+    # setup fitness function and GA
+    fitness = lambda ga_instance, cities, idx: game_fitness(
+        cities, idx, elevation=elevation, size=size
+    )
+    fitness_function, ga_instance = setup_GA(fitness, len(city_names), size)
+
+    ga_instance.run()
+    cities = ga_instance.best_solution()[0]
+    cities = convert_to_coordinates(cities, size)
+
+    #cities = get_randomly_spread_cities(size, len(city_names))
     routes = get_routes(cities)
 
     random.shuffle(routes)
@@ -101,7 +137,7 @@ if __name__ == "__main__":
     """ Add a line below that will reset the player variable to 
     a new object of PyGameAIPlayer class."""
 
-    player = PyGameAIPlayer()
+    # player = PyGameAIPlayer()
 
     state = State(
         current_city=start_city,
