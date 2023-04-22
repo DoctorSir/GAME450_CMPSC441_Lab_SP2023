@@ -172,7 +172,7 @@ if __name__ == "__main__":
     landscape_pic = elevation_to_rgba(elevation)
 
     # setup fitness function and GA
-    fitness = lambda cities, idx: game_fitness(
+    fitness = lambda ga_instance, cities, idx: game_fitness(
         cities, idx, elevation=elevation, size=size
     )
     fitness_function, ga_instance = setup_GA(fitness, n_cities, size)
@@ -193,4 +193,4 @@ if __name__ == "__main__":
     plt.imshow(landscape_pic, cmap="gist_earth")
     plt.plot(cities_t[:, 1], cities_t[:, 0], "r.")
     plt.show()
-    print(fitness_function(cities, 0))
+    print(fitness_function(None, cities, 0))
