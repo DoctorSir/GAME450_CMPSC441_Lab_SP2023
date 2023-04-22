@@ -65,6 +65,27 @@ def convert_to_coordinates(values, grid_size):
         coordinates.append((x, y))
     return coordinates
 
+def route_exists(start_city, end_city, routes):
+    """
+    Checks whether a direct route exists between two cities using a list of tuples containing pairs of cities representing the routes between them.
+    
+    Args:
+        start_city (tuple[int, int]): Tuple representing the coordinates of the starting city.
+        end_city (tuple[int, int]): Tuple representing the coordinates of the ending city.
+        routes (list[tuple[tuple[int, int], tuple[int, int]]]): List of tuples containing pairs of cities representing the routes between them.
+    
+    Returns:
+        bool: True if a direct route exists, False otherwise.
+    """
+    # Check if there is a direct route between the start and end city
+    for city1, city2 in routes:
+        if ((city1 == start_city and city2 == end_city) or 
+            (city1 == end_city and city2 == start_city)):
+            return True
+    
+    # If no direct route is found, return False
+    return False
+
 class State:
     def __init__(
         self,
@@ -152,14 +173,17 @@ if __name__ == "__main__":
         action = player.selectAction(state)
         if 0 <= int(chr(action)) <= 9:
             if int(chr(action)) != state.current_city and not state.travelling:
-                start = cities[state.current_city]
-                state.destination_city = int(chr(action))
-                destination = cities[state.destination_city]
-                player_sprite.set_location(cities[state.current_city])
-                state.travelling = True
-                print(
-                    "Travelling from", state.current_city, "to", state.destination_city
-                )
+                if route_exists(cities[state.current_city], cities[int(chr(action))], routes):
+                    start = cities[state.current_city]
+                    state.destination_city = int(chr(action))
+                    destination = cities[state.destination_city]
+                    player_sprite.set_location(cities[state.current_city])
+                    state.travelling = True
+                    print(
+                        "Travelling from", state.current_city, "to", state.destination_city
+                    )
+                else:
+                    print("Route does not exist!")
 
         screen.fill(black)
         screen.blit(landscape_surface, (0, 0))
