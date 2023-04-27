@@ -13,7 +13,8 @@ from pathlib import Path
 sys.path.append(str((Path(__file__) / ".." / "..").resolve().absolute()))
 
 from lab2.cities_n_routes import get_randomly_spread_cities, get_routes
-from lab7.ga_cities import game_fitness, setup_GA
+from lab3.travel_cost import get_route_cost
+from lab7.ga_cities import game_fitness, setup_GA, solution_to_cities
 
 
 pygame.font.init()
@@ -86,6 +87,7 @@ def route_exists(start_city, end_city, routes):
     # If no direct route is found, return False
     return False
 
+
 class State:
     def __init__(
         self,
@@ -153,7 +155,7 @@ if __name__ == "__main__":
 
     player_sprite = Sprite(sprite_path, cities[start_city])
 
-    player = PyGameHumanPlayer()
+    player = PyGameHumanPlayer(1000)
 
     """ Add a line below that will reset the player variable to 
     a new object of PyGameAIPlayer class."""
@@ -200,17 +202,25 @@ if __name__ == "__main__":
             state.encounter_event = random.randint(0, 1000) < 2
             if not state.travelling:
                 print('Arrived at', state.destination_city)
+                player.money -= get_route_cost((cities[state.current_city], cities[state.destination_city]), elevation)
+                print("Money left:", player.money)
 
         if not state.travelling:
             encounter_event = False
             state.current_city = state.destination_city
 
         if state.encounter_event:
-            run_pygame_combat(combat_surface, screen, player_sprite)
+            if run_pygame_combat(combat_surface, screen, player_sprite) < 1:
+                print("You died in battle. GAME OVER!")
+                break
             state.encounter_event = False
+            player.money += random.randint(1, 100)
         else:
             player_sprite.draw_sprite(screen)
         pygame.display.update()
         if state.current_city == end_city:
             print('You have reached the end of the game!')
+            break
+        elif player.money < 1:
+            print("You ran out of money. GAME OVER!")
             break

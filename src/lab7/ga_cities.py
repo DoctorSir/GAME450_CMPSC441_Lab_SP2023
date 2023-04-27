@@ -33,6 +33,7 @@ def game_fitness(cities, idx, elevation, size):
     """
     coords = solution_to_cities(cities, size)
 
+    """
     distances = []
     num = 1
     for i in range(len(coords)):
@@ -49,6 +50,7 @@ def game_fitness(cities, idx, elevation, size):
     mean_distance = sum(distances) / len(distances)
     variance = sum(pow((d - mean_distance), 2) for d in distances) / len(distances)
     fitness *= 1 / (variance * num)
+    """
 
     # Compute distances
     distances = []
@@ -56,10 +58,10 @@ def game_fitness(cities, idx, elevation, size):
     for i in range(len(coords)):
         x1, y1 = coords[i]
 
-        if elevation[x1][y1] < 0.5 or elevation[x1][y1] > 0.7:
+        if elevation[x1][y1] < 0.4 or elevation[x1][y1] > 0.75:
             violations += 1
 
-        edge_dist = min(x1, y1, 100 - x1, 100 - y1)
+        edge_dist = min(x1, y1, size[0] - x1, size[1] - y1)
         distances.append(edge_dist)
 
         for j in range(i+1, len(coords)):
@@ -72,16 +74,19 @@ def game_fitness(cities, idx, elevation, size):
 
     # Compute fitness for evenness
     mean_distance = sum(distances) / len(distances)
-    variance = sum((d - mean_distance)**2 for d in distances) / len(distances)
+    variance = sum(abs(d - mean_distance)**3 for d in distances) / len(distances)
     evenness_fitness = 1 / variance
     
     # Compute fitness for maximum distance
     max_distance = max(distances)
     penalty = sum(1 / (d + 2e-6) for d in distances if d < max_distance)
-    max_distance_fitness = (max_distance - penalty) / max_distance
+    max_distance_fitness = 1 / penalty
+
+    min_dist = min(distances)
+    min_distance_fitness = sqrt(min_dist / sqrt(size[0]**2 + size[1]**2))
     
     # Combine fitness values
-    fitness = (evenness_fitness + max_distance_fitness + elevation_fitness) / 3
+    fitness = (min_distance_fitness + max_distance_fitness + elevation_fitness + evenness_fitness) / 4
     return fitness
 
 
@@ -96,7 +101,7 @@ def setup_GA(fitness_fn, n_cities, size):
     :return: The fitness function and the GA instance.
     """
     num_generations = 100
-    num_parents_mating = 10
+    num_parents_mating = 15
 
     solutions_per_population = 300
     num_genes = n_cities

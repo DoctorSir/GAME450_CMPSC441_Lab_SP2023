@@ -75,3 +75,5 @@ def run_pygame_combat(combat_surface, screen, player_sprite):
         draw_combat_window(combat_surface, screen, player_sprite, opponent_sprite)
 
         run_turn(currentGame, player, opponent)
+    
+    return player.health

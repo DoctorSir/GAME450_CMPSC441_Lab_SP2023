@@ -8,7 +8,7 @@ In this lab, you will write a function that calculates the cost of a route betwe
 A terrain is generated for you 
 '''
 import numpy as np
-import bresenham
+from bresenham import bresenham
 
 def get_route_cost(route_coordinate, game_map):
     """
@@ -40,7 +40,7 @@ def get_route_cost(route_coordinate, game_map):
     :return: a floating point number representing the cost of the route
     """
     # Build a path from start to end that looks like [(0, 0), (1, 1), (2, 2), (3, 3), (4, 4), (5, 4)]
-    path = list(bresenham.bresenham(route_coordinate[0][0], route_coordinate[0][1], route_coordinate[1][0], route_coordinate[1][1]))
+    path = list(bresenham(route_coordinate[0][0], route_coordinate[0][1], route_coordinate[1][0], route_coordinate[1][1]))
     return game_map[tuple(zip(*path))].sum()
 
 
