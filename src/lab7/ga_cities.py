@@ -33,25 +33,6 @@ def game_fitness(cities, idx, elevation, size):
     """
     coords = solution_to_cities(cities, size)
 
-    """
-    distances = []
-    num = 1
-    for i in range(len(coords)):
-        x1, y1 = coords[i]
-
-        if elevation[x1][y1] < 0.5 or elevation[x1][y1] > 0.7:
-            num += 1
-
-        for j in range(i+1, len(coords)):
-            x2, y2 = coords[j]
-            distance = sqrt(pow((x2 - x1), 2) + pow((y2 - y1), 2))
-            distances.append(distance)
-
-    mean_distance = sum(distances) / len(distances)
-    variance = sum(pow((d - mean_distance), 2) for d in distances) / len(distances)
-    fitness *= 1 / (variance * num)
-    """
-
     # Compute distances
     distances = []
     violations = 1

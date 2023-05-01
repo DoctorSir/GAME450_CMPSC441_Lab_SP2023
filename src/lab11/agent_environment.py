@@ -5,8 +5,9 @@ import numpy as np
 from sprite import Sprite
 from pygame_combat import run_pygame_combat
 from pygame_human_player import PyGameHumanPlayer
-from landscape import get_landscape, get_combat_bg, elevation_to_rgba, get_elevation
+from landscape import get_landscape, get_combat_bg, elevation_to_rgba
 from pygame_ai_player import PyGameAIPlayer
+from journal import get_journal_entry
 
 from pathlib import Path
 
@@ -14,6 +15,7 @@ sys.path.append(str((Path(__file__) / ".." / "..").resolve().absolute()))
 
 from lab2.cities_n_routes import get_randomly_spread_cities, get_routes
 from lab3.travel_cost import get_route_cost
+from lab5.landscape import get_elevation
 from lab7.ga_cities import game_fitness, setup_GA, solution_to_cities
 
 
@@ -47,6 +49,7 @@ def displayCityNames(city_locations, city_names):
         text_surface = game_font.render(str(i) + " " + name, True, (0, 0, 150))
         screen.blit(text_surface, city_locations[i])
 
+
 def convert_to_coordinates(values, grid_size):
     """
     Converts a list of int32 values into tuples of coordinate pairs based on a passed in grid size.
@@ -65,6 +68,7 @@ def convert_to_coordinates(values, grid_size):
         y = value // width
         coordinates.append((x, y))
     return coordinates
+
 
 def route_exists(start_city, end_city, routes):
     """
@@ -182,7 +186,7 @@ if __name__ == "__main__":
                     player_sprite.set_location(cities[state.current_city])
                     state.travelling = True
                     print(
-                        "Travelling from", state.current_city, "to", state.destination_city
+                        "Travelling from", city_names[state.current_city], "to", city_names[state.destination_city]
                     )
                 else:
                     print("Route does not exist!")
@@ -201,9 +205,10 @@ if __name__ == "__main__":
             state.travelling = player_sprite.move_sprite(destination, sprite_speed)
             state.encounter_event = random.randint(0, 1000) < 2
             if not state.travelling:
-                print('Arrived at', state.destination_city)
-                player.money -= get_route_cost((cities[state.current_city], cities[state.destination_city]), elevation)
+                print('Arrived at', city_names[state.destination_city])
+                player.money -= 2 * get_route_cost((cities[state.current_city], cities[state.destination_city]), elevation)
                 print("Money left:", player.money)
+                get_journal_entry(city_names[state.current_city])
 
         if not state.travelling:
             encounter_event = False
@@ -214,7 +219,7 @@ if __name__ == "__main__":
                 print("You died in battle. GAME OVER!")
                 break
             state.encounter_event = False
-            player.money += random.randint(1, 100)
+            player.money += random.randint(50, 200)
         else:
             player_sprite.draw_sprite(screen)
         pygame.display.update()
